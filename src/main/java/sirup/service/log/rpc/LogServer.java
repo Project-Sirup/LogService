@@ -11,6 +11,8 @@ public class LogServer {
     private Server server;
 
     public void start() throws IOException {
+        MongoDB.getInstance().connect();
+
         server = ServerBuilder.forPort(2102).addService(new LogImplementation()).build();
         server.start();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

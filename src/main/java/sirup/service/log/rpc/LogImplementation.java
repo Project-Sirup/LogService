@@ -3,9 +3,13 @@ package sirup.service.log.rpc;
 import io.grpc.stub.StreamObserver;
 import sirup.service.log.rpc.proto.*;
 
+import java.util.Date;
+
 import static sirup.service.log.rpc.client.ColorUtil.*;
 
 public class LogImplementation extends SirupLogServiceGrpc.SirupLogServiceImplBase {
+
+    private final LogService logger = new LogService(MongoDB.getInstance().getMongoDatabase());
 
     @Override
     public void health(HealthRequest request, StreamObserver<HealthResponse> responseObserver) {
@@ -30,6 +34,7 @@ public class LogImplementation extends SirupLogServiceGrpc.SirupLogServiceImplBa
     @Override
     public void info(InfoRequest request, StreamObserver<InfoResponse> responseObserver) {
         //TODO: make better logging
+        logger.writeLog(new Log(request.getLogRequest().getSenderService(), "info", new Date(), request.getLogRequest().getMessage()));
         System.out.println(green(request.getLogRequest().getSenderService()) + " -> " + request.getLogRequest().getMessage());
         InfoResponse infoResponse = InfoResponse.newBuilder()
                 .setLogResponse(makeLogResponse(request.getLogRequest().getSenderService().isEmpty() ? 400 : 200))
@@ -41,6 +46,7 @@ public class LogImplementation extends SirupLogServiceGrpc.SirupLogServiceImplBa
     @Override
     public void warn(WarnRequest request, StreamObserver<WarnResponse> responseObserver) {
         //TODO: make better logging
+        logger.writeLog(new Log(request.getLogRequest().getSenderService(), "warn", new Date(), request.getLogRequest().getMessage()));
         System.out.println(yellow(request.getLogRequest().getSenderService()) + " -> " + request.getLogRequest().getMessage());
         WarnResponse warnResponse = WarnResponse.newBuilder()
                 .setLogResponse(makeLogResponse(request.getLogRequest().getSenderService().isEmpty() ? 400 : 200))
@@ -52,6 +58,7 @@ public class LogImplementation extends SirupLogServiceGrpc.SirupLogServiceImplBa
     @Override
     public void error(ErrorRequest request, StreamObserver<ErrorResponse> responseObserver) {
         //TODO: make better logging
+        logger.writeLog(new Log(request.getLogRequest().getSenderService(), "error", new Date(), request.getLogRequest().getMessage()));
         System.out.println(red(request.getLogRequest().getSenderService()) + " -> " + request.getLogRequest().getMessage());
         ErrorResponse errorResponse = ErrorResponse.newBuilder()
                 .setLogResponse(makeLogResponse(request.getLogRequest().getSenderService().isEmpty() ? 400 : 200))
