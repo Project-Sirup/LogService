@@ -3,7 +3,11 @@ package sirup.service.log.rpc;
 import io.grpc.stub.StreamObserver;
 import sirup.service.log.rpc.proto.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 import static sirup.service.log.rpc.client.ColorUtil.*;
 
@@ -15,6 +19,31 @@ public class LogImplementation extends SirupLogServiceGrpc.SirupLogServiceImplBa
     public void health(HealthRequest request, StreamObserver<HealthResponse> responseObserver) {
         HealthResponse healthResponse = HealthResponse.newBuilder().setHealthCode(200).build();
         responseObserver.onNext(healthResponse);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void logList(LogListRequest request, StreamObserver<LogListResponse> responseObserver) {
+        //TODO: auth
+
+        LogListResponse logListResponse = LogListResponse.newBuilder()
+                .addAllLogList(logger.getLogList())
+                .build();
+        responseObserver.onNext(logListResponse);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void logFrom(LogFromRequest request, StreamObserver<LogFromResponse> responseObserver) {
+        LogFromResponse.Builder logFromResponseBuilder = LogFromResponse.newBuilder();
+        try {
+            logFromResponseBuilder.addAllLogs(logger.getLogsFor(request.getLogName()));
+            logFromResponseBuilder.setFound(true);
+        } catch (IllegalArgumentException e) {
+            logFromResponseBuilder.setFound(false);
+        }
+
+        responseObserver.onNext(logFromResponseBuilder.build());
         responseObserver.onCompleted();
     }
 

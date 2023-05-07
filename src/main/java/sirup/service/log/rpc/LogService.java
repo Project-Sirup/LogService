@@ -3,11 +3,9 @@ package sirup.service.log.rpc;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import sirup.service.log.rpc.proto.LogDTO;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 import static sirup.service.log.rpc.Services.*;
 
@@ -39,5 +37,25 @@ public class LogService {
         document.put("level", log.level());
         document.put("message", log.message());
         serviceLog.insertOne(document);
+    }
+
+    public List<String> getLogList() {
+        return this.serviceLogs.keySet().stream().toList();
+    }
+
+    public List<LogDTO> getLogsFor(String serviceName) {
+        if (!serviceLogs.containsKey(serviceName)) {
+            throw new IllegalArgumentException("The specified service [" + serviceName + "] is not logged");
+        }
+        List<LogDTO> logs = new ArrayList<>();
+        serviceLogs.get(serviceName).find().into(new ArrayList<>()).forEach(_log -> {
+            LogDTO logDTO = LogDTO.newBuilder()
+                    .setLevel((String)_log.get("level"))
+                    .setDate((String)_log.get("timestamp"))
+                    .setMessage((String)_log.get("message"))
+                    .build();
+            logs.add(logDTO);
+        });
+        return logs;
     }
 }
