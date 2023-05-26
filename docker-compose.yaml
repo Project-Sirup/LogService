@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  logservice:
+      build:
+        context: .
+      depends_on:
+        - logservice_db
+  logservice_db:
+    image: mongo
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    volumes:
+      - ./db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+  
+      
