@@ -19,7 +19,7 @@ public class MongoDB {
 
     public boolean connect() {
         try {
-            this.mongoClient = MongoClients.create("mongodb://localhost:27017");
+            this.mongoClient = MongoClients.create(Env.LOG_DB_ADDRESS + ":" + Env.LOG_DB_PORT);
             this.mongoDatabase = mongoClient.getDatabase("sirupLog");
             return true;
         } catch (RuntimeException e) {

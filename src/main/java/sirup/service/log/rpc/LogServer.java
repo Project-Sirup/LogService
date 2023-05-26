@@ -12,8 +12,7 @@ public class LogServer {
 
     public void start() throws IOException {
         MongoDB.getInstance().connect();
-
-        server = ServerBuilder.forPort(2102).addService(new LogImplementation()).build();
+        server = ServerBuilder.forPort(Env.LOG_PORT).addService(new LogImplementation()).build();
         server.start();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             // Use stderr here since the logger may have been reset by its JVM shutdown hook.
@@ -25,6 +24,7 @@ public class LogServer {
             }
             System.err.println("*** server shut down");
         }));
+        System.out.println("LoggingService running");
     }
 
     public void stop() throws InterruptedException {
